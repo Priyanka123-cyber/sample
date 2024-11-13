@@ -3,13 +3,12 @@ const router = express.Router();
 const Otp = require('../model/otp_data')
 const nodemailer = require('nodemailer')
 const crypto = require('crypto')
-const { log } = require('console')
-const { env } = require('process')
+
 
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
-    secure: true, // Use true for Yahoo (port 465 uses SSL/TLS)
+    secure: true, 
     auth: {
         user: process.env.EMAIL,
         pass: process.env.PASSWORD,
@@ -20,7 +19,6 @@ const transporter = nodemailer.createTransport({
 
 router.post('/', async (req, res) => {
     const { email } = req.body;
-     console.log(req);
     // Generate OTP and expiration time
     const otp = crypto.randomInt(100000, 999999).toString();
     const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
@@ -47,5 +45,20 @@ router.post('/', async (req, res) => {
     res.json({ message: 'OTP sent to your email' });
 
 })
+router.post('/verify', async (req, res) => {
+    const { email, otp } = req.body;
+    const user = await Otp.findOne({ email });
+    console.log(response); // Check the response object from the backend
+
+
+    if (!user || user.otp !== otp || user.otpExpiresAt < new Date()) {
+        return res.status(400).json({ message: 'Invalid or expired OTP' });
+        
+    }
+{
+    res.json({ message: 'Login successful' });
+    console.log(response); }
+})
+
 
 module.exports = router;

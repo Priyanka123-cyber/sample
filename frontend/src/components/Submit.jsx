@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import TextField from '@mui/material/TextField';
 import { Box, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
 
 const Submit = () => {
   const [email, setEmail] = useState('');
@@ -9,9 +11,13 @@ const Submit = () => {
   const navigate = useNavigate();
 
   const requestOtp = async () => {
+    console.log('Attempting to send OTP:', email); // Log email before sending request
     try {
-      const response = await axios.post('http://localhost:6000/otp', { email });
+      const response = await axios.post('http://localhost:3000/otp', { email });
+      console.log('Response received:', response);
+      localStorage.setItem('email', email);
       setMessage(response.data.message);
+      navigate('/verify');
     } catch (error) {
       setMessage(error.response?.data?.message || 'Error sending OTP');
     }
